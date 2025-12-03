@@ -1,123 +1,101 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>iOS Long-Press + Android Chrome Escape</title>
-
+<title>Galaxy C - iOS + Android</title>
 <style>
     body {
-        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-        padding: 40px 18px;
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+        background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+        background-size: 300% 300%;
+        animation: gradientMove 12s ease infinite;
+        color: #fff;
         text-align: center;
-        background: #ffffff;
     }
-
-    h2 {
+    @keyframes gradientMove {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    .header {
+        padding: 22px 0 12px;
         font-size: 26px;
         font-weight: 700;
     }
-
-    #urlButton {
-        margin: 40px auto;
-        padding: 22px 20px;
+    .card {
         width: 88%;
-        font-size: 22px;
-        font-weight: 700;
-        color: white;
-        background: #ff5722;
-        border-radius: 18px;
-        user-select: text;
-        line-height: 32px;
-        word-break: break-all;
-        transition: 0.15s;
+        margin: 25px auto;
+        padding: 22px 22px;
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-radius: 22px;
+        box-shadow: 0px 8px 30px rgba(0,0,0,0.35);
     }
-
-    #androidBtn {
-        display: none;
-        width: 88%;
-        margin: 20px auto;
-        padding: 18px;
-        background: #2196F3;
-        color: white;
+    .url-box {
+        background: rgba(255,255,255,0.28);
         border-radius: 16px;
-        font-size: 22px;
-        font-weight: 700;
-    }
-
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.03); }
-        100% { transform: scale(1); }
-    }
-
-    .pulse {
-        animation: pulse 0.6s ease-in-out 2;
-    }
-
-    #hint {
-        font-size: 17px;
+        padding: 18px;
+        color: #fff;
+        font-size: 19px;
         font-weight: 600;
+        user-select: none;
+    }
+    .url-box:active {
+        background: rgba(255,255,255,0.45);
+    }
+    .note {
         margin-top: 12px;
-        color: #ff5722;
+        font-size: 16px;
+        opacity: 0.9;
+    }
+    #androidBtn {
+        margin-top: 18px;
+        padding: 14px 22px;
+        font-size: 18px;
+        font-weight: 700;
+        border-radius: 18px;
+        background: #ffb74d;
+        color: #000;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         display: none;
     }
 </style>
 </head>
-
 <body>
 
-<h2>Nhấn giữ để mở liên kết</h2>
+<div class="header">Mở liên kết</div>
 
-<div id="urlButton">https://beacons.ai/tuimufeedback</div>
-
-<div id="androidBtn">Mở bằng Chrome</div>
-
-<div id="hint">👉 Nhả tay rồi chạm 1 lần nếu popup chưa hiện!</div>
+<div class="card">
+    <div id="urlBox" class="url-box">https://beacons.ai/tuimufeedback</div>
+    <button id="androidBtn">MỞ BẰNG CHROME</button>
+    <div class="note">iOS: Nhấn giữ để chọn URL<br>Android: Bấm nút để mở Chrome</div>
+</div>
 
 <script>
-const urlBtn = document.getElementById("urlButton");
-const androidBtn = document.getElementById("androidBtn");
-const hint = document.getElementById("hint");
-
-let pressTimer = null;
-let url = urlBtn.innerText.trim();
-
-function selectText() {
-    let range = document.createRange();
-    range.selectNodeContents(urlBtn);
-    let sel = window.getSelection();
+// iOS long-press select
+document.getElementById("urlBox").addEventListener("touchstart", function(e){
+    const sel = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(this);
     sel.removeAllRanges();
     sel.addRange(range);
+});
+
+// Android detection
+var isAndroid = /Android/i.test(navigator.userAgent);
+if (isAndroid) {
+    document.getElementById("androidBtn").style.display = "block";
 }
 
-// Detect Android
-if (/android/i.test(navigator.userAgent)) {
-    androidBtn.style.display = "block";
-}
-
-// Android button → force Chrome
-androidBtn.addEventListener("click", () => {
-    let chromeURL = "googlechrome://navigate?url=" + encodeURIComponent(url);
-    window.location.href = chromeURL;
-});
-
-// iOS long-press
-urlBtn.addEventListener("touchstart", () => {
-    pressTimer = setTimeout(() => {
-        selectText();
-        urlBtn.classList.add("pulse");
-        setTimeout(() => urlBtn.classList.remove("pulse"), 700);
-        hint.style.display = "block";
-        urlBtn.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 900);
-});
-
-urlBtn.addEventListener("touchend", () => {
-    clearTimeout(pressTimer);
-    setTimeout(() => selectText(), 30);
-});
+// Android Chrome Intent Button
+document.getElementById("androidBtn").onclick = function() {
+    window.location.href = "intent://beacons.ai/tuimufeedback/#Intent;scheme=https;package=com.android.chrome;end";
+};
 </script>
 
 </body>
