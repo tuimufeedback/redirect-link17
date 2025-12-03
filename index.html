@@ -1,0 +1,124 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>iOS Long-Press + Android Chrome Escape</title>
+
+<style>
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        padding: 40px 18px;
+        text-align: center;
+        background: #ffffff;
+    }
+
+    h2 {
+        font-size: 26px;
+        font-weight: 700;
+    }
+
+    #urlButton {
+        margin: 40px auto;
+        padding: 22px 20px;
+        width: 88%;
+        font-size: 22px;
+        font-weight: 700;
+        color: white;
+        background: #ff5722;
+        border-radius: 18px;
+        user-select: text;
+        line-height: 32px;
+        word-break: break-all;
+        transition: 0.15s;
+    }
+
+    #androidBtn {
+        display: none;
+        width: 88%;
+        margin: 20px auto;
+        padding: 18px;
+        background: #2196F3;
+        color: white;
+        border-radius: 16px;
+        font-size: 22px;
+        font-weight: 700;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.03); }
+        100% { transform: scale(1); }
+    }
+
+    .pulse {
+        animation: pulse 0.6s ease-in-out 2;
+    }
+
+    #hint {
+        font-size: 17px;
+        font-weight: 600;
+        margin-top: 12px;
+        color: #ff5722;
+        display: none;
+    }
+</style>
+</head>
+
+<body>
+
+<h2>Mở liên kết</h2>
+
+<div id="urlButton">https://beacons.ai/tuimufeedback</div>
+
+<div id="androidBtn">Mở bằng Chrome</div>
+
+<div id="hint">👉 Nhả tay rồi chạm 1 lần nếu popup chưa hiện!</div>
+
+<script>
+const urlBtn = document.getElementById("urlButton");
+const androidBtn = document.getElementById("androidBtn");
+const hint = document.getElementById("hint");
+
+let pressTimer = null;
+let url = urlBtn.innerText.trim();
+
+function selectText() {
+    let range = document.createRange();
+    range.selectNodeContents(urlBtn);
+    let sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+}
+
+// Detect Android
+if (/android/i.test(navigator.userAgent)) {
+    androidBtn.style.display = "block";
+}
+
+// Android button → force Chrome
+androidBtn.addEventListener("click", () => {
+    let chromeURL = "googlechrome://navigate?url=" + encodeURIComponent(url);
+    window.location.href = chromeURL;
+});
+
+// iOS long-press
+urlBtn.addEventListener("touchstart", () => {
+    pressTimer = setTimeout(() => {
+        selectText();
+        urlBtn.classList.add("pulse");
+        setTimeout(() => urlBtn.classList.remove("pulse"), 700);
+        hint.style.display = "block";
+        urlBtn.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 900);
+});
+
+urlBtn.addEventListener("touchend", () => {
+    clearTimeout(pressTimer);
+    setTimeout(() => selectText(), 30);
+});
+</script>
+
+</body>
+</html>
